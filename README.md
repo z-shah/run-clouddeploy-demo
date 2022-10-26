@@ -1,5 +1,6 @@
 # Skaffold + Cloud Build + Cloud Deploy demo
 
+NOTE: This code is for demo purpose only.
 
 - This example does not create the two cloud run services (`hello-dev` and `hello-prod` ). You will need to create them first.
 
