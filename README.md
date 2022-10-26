@@ -19,3 +19,15 @@ gcloud deploy apply --file=./clouddeploy.yaml --region=$REGION --project=$PROJEC
 
 ```
 
+## **Create a CloudBuild trigger with the following substitutions**
+
+```
+
+substitutions:
+  _IMAGE: <IMAGE_NAME>
+  _LOCATION: <GCP_REGION>
+  _PIPELINE_NAME: <CLOUDDEPLOY_PIPELINE_NAME>
+  _REPOSITORY: <ARTIFACTREGISTRY_REPONAME>
+  _SEVERITY: CRITICAL
+
+```
