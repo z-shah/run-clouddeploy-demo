@@ -1,0 +1,16 @@
+createTime: '2022-10-13T13:12:43.912501010Z'
+filename: cloudbuild.yaml
+github:
+  name: run-clouddeploy-demo
+  owner: z-shah
+  push:
+    branch: ^main$
+id: cfec68a4-6cb8-4d4a-8330-3eca6d934117
+includeBuildLogs: INCLUDE_BUILD_LOGS_WITH_STATUS
+name: run-hello-app
+substitutions:
+  _IMAGE: helloworld
+  _LOCATION: australia-southeast1
+  _PIPELINE_NAME: run-helloworld-app
+  _REPOSITORY: dev-repo
+  _SEVERITY: CRITICAL

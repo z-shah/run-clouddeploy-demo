@@ -1,0 +1,51 @@
+steps:
+- id: build
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -c
+  - |
+    docker build -t ${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA -f ./Dockerfile . &&
+    docker image inspect ${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA --format \
+    '{{index .RepoTags 0}}@{{.Id}}' > /workspace/image-digest.txt &&
+    cat image-digest.txt
+- id: scan
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: /bin/bash
+  args:
+  - -c
+  - |
+    gcloud artifacts docker images scan ${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA \
+    --format='value(response.scan)' > /workspace/scan_id.txt
+- id: severity check
+  name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: /bin/bash
+  args:
+  - -c
+  - |
+    gcloud artifacts docker images list-vulnerabilities $(cat /workspace/scan_id.txt) \
+    --format='value(vulnerability.effectiveSeverity)' | if grep -Fxq $_SEVERITY; \
+    then echo 'Failed vulnerability check' && exit 1; else exit 0; fi
+- id: push
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -c
+  - |
+    docker push ${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA
+    
+- id: deploy
+  name: 'gcr.io/cloud-builders/gcloud'
+  args: [
+    'deploy', 'releases', 'create', 
+    'release-$SHORT_SHA', '--project=$PROJECT_ID', 
+    '--region=${_LOCATION}', '--delivery-pipeline=${_PIPELINE_NAME}', 
+    '--images=helloworld=${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA']
+
+options:
+ logging: CLOUD_LOGGING_ONLY
+
+
+
+
+

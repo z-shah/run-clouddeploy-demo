@@ -1,0 +1,17 @@
+apiVersion: skaffold/v3alpha1
+kind: Config
+metadata: 
+  name: deploy-run
+profiles:
+- name: dev
+  manifests:
+    rawYaml:
+    - run-dev.yaml
+- name: prod
+  manifests:
+    rawYaml:
+    - run-prod.yaml
+deploy:
+  statusCheck: true
+  statusCheckDeadlineSeconds: 600
+  cloudrun: {}
